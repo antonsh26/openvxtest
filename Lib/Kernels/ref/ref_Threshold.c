@@ -66,5 +66,5 @@ vx_status ref_Threshold(const vx_image src_image,
             }
         }
     }
-    return VX_SUCCESS;
+   return VX_SUCCESS;
 }

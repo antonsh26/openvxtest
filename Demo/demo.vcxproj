@@ -41,9 +41,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\Opencv3\opencv\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Opencv3\opencv\build\x86\vc12\bin;$(ExecutablePath)</ExecutablePath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <ExecutablePath>C:\Opencv3\opencv\build\x86\vc12\bin;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>C:\Opencv3\opencv\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -51,16 +57,32 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)include;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)include;C:\Opencv3\opencv\build\include;..;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OPENCV_DIR)$(PROCESSOR_ARCHITECTURE)\vc12\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world300d.lib</AdditionalDependencies>
-      <LinkStatus>false</LinkStatus>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)$(PROCESSOR_ARCHITECTURE)\vc12\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world300d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>
+      </ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>copy %OPENCV_DIR%$(PROCESSOR_ARCHITECTURE)\vc12\bin\opencv_world300d.dll $(SolutionDir)$(Configuration)\opencv_world300d.dll</Command>
@@ -82,7 +104,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)include;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)include;C:\Opencv3\opencv\build\include;..;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -90,13 +112,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(OPENCV_DIR)$(PROCESSOR_ARCHITECTURE)\vc12\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world300.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)$(PROCESSOR_ARCHITECTURE)\vc12\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world300d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkStatus>false</LinkStatus>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <PostBuildEvent>
-      <Command>copy %OPENCV_DIR%$(PROCESSOR_ARCHITECTURE)\vc12\bin\opencv_world300.dll $(SolutionDir)$(Configuration)\opencv_world300.dll</Command>
+      <Command>copy %OPENCV_DIR%$(PROCESSOR_ARCHITECTURE)\vc12\bin\opencv_world300d.dll $(SolutionDir)$(Configuration)\opencv_world300d.dll</Command>
       <Message>Copy OpenCV dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -105,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="demo.cpp" />
+    <ClCompile Include="Kernels\demo_CurveDetector.cpp" />
     <ClCompile Include="Kernels\demo_Threshold.cpp" />
   </ItemGroup>
   <ItemGroup>

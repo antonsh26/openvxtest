@@ -259,10 +259,12 @@ vx_status ref_Threshold(const vx_image src_image, vx_image dst_image, const vx_t
 */
 // ref_FitLine
 
+
+
 /*
     Function: ref_CurveDetector
 
-    Описание фукнции
+    Описание функции
 
     Parameters (пример):
         src_image           - входное изображение;
@@ -272,7 +274,7 @@ vx_status ref_Threshold(const vx_image src_image, vx_image dst_image, const vx_t
         VX_SUCCESS          - в случае успешного завершения;
         VX_ERROR_INVALID_PARAMETERS - в случае некорректных данных.       
 */
-// ref_CurveDetector
+vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** Curve);
 
 /*
     Function: ref_ApproximateWithPolyline
