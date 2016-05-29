@@ -264,17 +264,20 @@ vx_status ref_Threshold(const vx_image src_image, vx_image dst_image, const vx_t
 /*
     Function: ref_CurveDetector
 
-    Описание функции
+    Описание функции:
+	Функция получает входное контурное изображение, добавляет все кривые в массив массивов кривых Curves 
+	и после завершения обработки входного изображения отмечает на выходном изображении все кривые из Curves.
 
-    Parameters (пример):
+    Parameters:
         src_image           - входное изображение;
         dst_image           - выходное изображение;
+		Curves              - массив массивов кривых;
 
     Return:
         VX_SUCCESS          - в случае успешного завершения;
         VX_ERROR_INVALID_PARAMETERS - в случае некорректных данных.       
 */
-vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** Curve);
+vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** Curves);
 
 /*
     Function: ref_ApproximateWithPolyline

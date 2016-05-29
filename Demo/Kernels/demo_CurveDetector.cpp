@@ -60,7 +60,7 @@ void demo_CurveDetector::execute()
 	cv::namedWindow(m_openVXWindow, CV_WINDOW_NORMAL);
 	cv::namedWindow(m_diffWindow, CV_WINDOW_NORMAL);
 
-	const std::string imgPath = "..\\Image\\test.png";
+	const std::string imgPath = "..\\Image\\test_curves.png";
 	m_srcImage = cv::imread(imgPath, CV_LOAD_IMAGE_GRAYSCALE);
 	cv::imshow(m_originalWindow, m_srcImage);
 
@@ -93,11 +93,12 @@ void demo_CurveDetector::applyParameters(void* data)
 		VX_COLOR_SPACE_DEFAULT
 	};
 
-	uint32_t** Curve;
-	Curve = static_cast<uint32_t**>(calloc(imgSize.width*imgSize.height * 3/100 * sizeof(uint32_t*), sizeof(uint32_t*)));
-	ref_CurveDetector(&srcVXImage, &dstVXImage, Curve);
+	uint32_t** Curves;
+	Curves = static_cast<uint32_t**>(calloc(imgSize.width*imgSize.height * 3/100 * sizeof(uint32_t*), sizeof(uint32_t*)));
+	ref_CurveDetector(&srcVXImage, &dstVXImage, Curves);
 
 	cv::imshow(m_openCVWindow, demo->m_srcImage);
+
 	const cv::Mat vxImage = cv::Mat(imgSize, CV_8UC1, outVXImage);
 	cv::imshow(m_openVXWindow, vxImage);
 
@@ -105,7 +106,7 @@ void demo_CurveDetector::applyParameters(void* data)
 	cv::absdiff(vxImage, demo->m_srcImage, diffImage);
 	cv::imshow(m_diffWindow, diffImage);
 	
-	free(Curve);
+	free(Curves);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

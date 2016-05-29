@@ -8,13 +8,14 @@ Date: 28 May 2016
 
 #include "../ref.h"
 
+//@brief function returns the coordinates of a neighboring pixel by number
 int32_t Neighbors(const uint8_t i, const uint32_t point, const uint32_t width)
 {
 	// 0 1 2
 	// 7 * 3
 	// 6 5 4
-	bool left_border = (point%width) == 0;
-	bool right_border = (point%width) == width - 1;
+	bool left_border = (point%width) == 0; //if pixel on the left border
+	bool right_border = (point%width) == width - 1; //if pixel on the right border
 	switch (i)
 	{
 	case 0:
@@ -44,6 +45,7 @@ int32_t Neighbors(const uint8_t i, const uint32_t point, const uint32_t width)
 	}
 }
 
+//@brief function returns the count of neighbors of pixel
 uint8_t CountNeighbors(vx_image image, const uint32_t point)
 {
 	uint8_t* data = image->data;
@@ -55,8 +57,8 @@ uint8_t CountNeighbors(vx_image image, const uint32_t point)
 	for (uint8_t ind = 0; ind < 8; ++ind)
 	{
 		currentPoint = Neighbors(ind, point, width);
-		if ((currentPoint < 0) || (currentPoint >= hlim))
-			continue;
+		if ((currentPoint < 0) || (currentPoint >= hlim)) 
+			continue; // if it's going beyond the image
 		if (data[currentPoint] == 255)
 		{
 			++nNeighbors;
@@ -65,6 +67,7 @@ uint8_t CountNeighbors(vx_image image, const uint32_t point)
 	return nNeighbors;
 }
 
+//@brief function removes the corners on the curves of the edge image
 void ThinEdge(vx_image image)
 {
 	uint8_t* data = image->data;
@@ -107,6 +110,8 @@ void ThinEdge(vx_image image)
 	}
 }
 
+/*@brief function returns the next pixel of the curve
+next pixel must be non-zero, not equal to the previous one, not marked; otherwise, it returns the current pixel*/
 uint32_t GetNextDirection(vx_image image, const uint32_t currentPoint, const int32_t prevPoint, uint8_t* Marked)
 {
 	uint8_t* data = image->data;
@@ -118,13 +123,13 @@ uint32_t GetNextDirection(vx_image image, const uint32_t currentPoint, const int
 		if (nextPoint >= 0 && nextPoint < hlim)
 		{
 			if (data[nextPoint] == 255 && nextPoint != prevPoint && Marked[nextPoint] == 0)
-				return (uint32_t)nextPoint;
+				return (uint32_t)nextPoint;	
 		}
 	}
 	return currentPoint;
 }
 
-
+//@brief function returns the end of the curve
 void FindEndCurve(vx_image image, uint32_t* endPoint, uint8_t* Marked)
 {
 	uint8_t nNeighbors = CountNeighbors(image, endPoint[0]);
@@ -141,6 +146,7 @@ void FindEndCurve(vx_image image, uint32_t* endPoint, uint8_t* Marked)
 			   uint32_t currentPoint = endPoint[0];
 			   uint32_t nextPoint = GetNextDirection(image, endPoint[0], endPoint[1], Marked);
 			   uint32_t addPoint = image->width*image->height;
+			   // addPoint - additional pixel to avoid looping
 			   while (nextPoint != endPoint[0] && nextPoint != currentPoint)
 			   {
 				   prevPoint = currentPoint;
@@ -165,25 +171,26 @@ void FindEndCurve(vx_image image, uint32_t* endPoint, uint8_t* Marked)
 				   }
 				   
 			   }
-			   endPoint[0] = nextPoint; 
-			   endPoint[1] = prevPoint;
+			   endPoint[0] = nextPoint; //the end of the curve
+			   endPoint[1] = prevPoint; //pixel is preceding the end
 	}
 	}
 }
 
-void TraceCurve(vx_image image, uint32_t* Point, uint32_t* Curve, uint8_t* Marked)
+//@brief curve tracking function from the set point to the nearest end. Tracked curve marked on the output image.
+void TraceCurve(vx_image image, uint32_t* Point, uint32_t* Curves, uint8_t* Marked)
 {
 	FindEndCurve(image, Point, Marked);
 	for (uint8_t ind = 0; ind < 2; ++ind)
 	{
-		Curve[ind] = Point[ind];
+		Curves[ind] = Point[ind];
 	}
 	uint32_t counter = 1;
 	uint32_t nextPoint = Point[1];
-	Marked[Curve[0]] = 255;
+	Marked[Curves[0]] = 255;
 	while (nextPoint != Point[0])
 	{
-		Curve[counter++] = nextPoint;
+		Curves[counter++] = nextPoint;
 		Marked[nextPoint] = 255;
 		nextPoint = GetNextDirection(image, Point[1], Point[0], Marked);
 		Point[0] = Point[1];
@@ -191,7 +198,8 @@ void TraceCurve(vx_image image, uint32_t* Point, uint32_t* Curve, uint8_t* Marke
 	}
 }
 
-vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** Curve)
+//@brief main function
+vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** Curves)
 {
 	const uint32_t src_width = src_image->width;
 	const uint32_t src_height = src_image->height;
@@ -212,7 +220,7 @@ vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** C
 	ThinEdge(src_image);
 	
 	const uint32_t points = src_width*src_height*3/100;
-	uint8_t counter = 0;
+	uint8_t nCurve = 0;
 	uint32_t Point[2] = { 0 };
 	for (uint32_t ind_w = 0; ind_w < src_width*src_height; ++ind_w)
 	{
@@ -220,28 +228,21 @@ vx_status ref_CurveDetector(vx_image src_image, vx_image dst_image, uint32_t** C
 		{
 			Point[0] = ind_w;
 			Point[1] = ind_w;
-			Curve[counter] = (uint32_t*)calloc(points * sizeof(uint32_t), sizeof(uint32_t));
-			TraceCurve(src_image, Point, Curve[counter], dst_data);
-			counter++;
+			Curves[nCurve] = (uint32_t*)calloc(points * sizeof(uint32_t), sizeof(uint32_t));
+			TraceCurve(src_image, Point, Curves[nCurve], dst_data);
+			nCurve++;
 		}
 	}
-
+	//clearing the output image
 	for (uint32_t ind_w = 0; ind_w < dst_width*dst_height; ++ind_w)
-	{
 		dst_data[ind_w] = 0;
-	}
 
-	for (uint32_t i = 0; i < counter; i++)
+	//displaying of curves on the output image
+	for (uint32_t i = 0; i < nCurve; i++)
 	{
 		for (uint32_t j = 0; j < points; j++)
-		{
-			uint32_t a = Curve[i][j];
-			if (a < dst_width*dst_height)
-				dst_data[a] = 255;
-			else
-				break;
-		}
-
+			dst_data[Curves[i][j]] = 255;
 	}
+
 	return VX_SUCCESS;
 }
